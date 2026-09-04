@@ -59,10 +59,10 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .modal{width:100%;background:#fff8ec;border-radius:22px;padding:20px;text-align:center}.modal h2{margin:0 0 8px}.modal p{font-size:11px;line-height:1.6;color:#79604d}.modal-actions{display:flex;gap:6px;margin-top:14px}.modal-actions button{flex:1;border:0;border-radius:12px;padding:10px;min-height:44px;font-weight:900}
 .score{font-size:66px;font-weight:1000;color:#e96c2c}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:13px 0}.stat{background:white;border-radius:11px;padding:7px 3px;font-size:9px}.stat b{display:block;font-size:14px}.personality{font-size:23px;font-weight:1000;margin:8px}.mvp{display:inline-block;background:#efd0a2;border-radius:10px;padding:6px 9px;font-size:10px;margin-top:7px}.leftover{margin:8px auto 0;font-size:11px;font-weight:900}
 @media(max-height:740px){
-  .game-head{padding-top:5px;padding-bottom:4px}.top{min-height:38px}.finish{min-height:38px}
+  .game-head{padding-top:5px;padding-bottom:4px}.top{min-height:44px}.finish{min-height:44px}
   .urgent{margin-top:2px;padding:4px 6px}.urgent b{line-height:20px}.chip{line-height:12px;padding:4px 5px}.budgets{margin-top:2px}
   .fridge{min-height:190px}.ingredient .icon{font-size:32px}.ingredient .label{font-size:7px}
-  .menu{min-height:40px}.possible{min-height:40px}.cook{padding-top:4px;padding-bottom:5px}.slot{height:44px}.pot{height:66px}.pot:before{width:120px;height:56px}.pot:after{width:72px;height:17px;top:53px}.actions button{min-height:40px}
+  .menu{min-height:44px}.possible{min-height:44px}.cook{padding-top:4px;padding-bottom:5px}.slot{height:44px}.pot{height:66px}.pot:before{width:120px;height:56px}.pot:after{width:72px;height:17px;top:53px}.actions button{min-height:44px}
 }
 @media(max-width:365px){
   .game-title{font-size:17px}.urgent{gap:3px}.urgent b{font-size:8px}.chip{font-size:8px}.ingredient .icon{font-size:31px}.ingredient .label{font-size:7px}
@@ -242,9 +242,10 @@ function cook(){
   const after=possibleIds(nextInv),closed=before.filter(x=>x!==id&&!after.includes(x));
   const depleted=Object.keys(r[1]).filter(i=>(beforeInv[i]||0)>0&&(nextInv[i]||0)===0);
   const causalClosed=closed.filter(recipeId=>missingForRecipe(recipeId,nextInv).some(i=>depleted.includes(i)));
+  const causalDepleted=depleted.filter(i=>causalClosed.some(recipeId=>missingForRecipe(recipeId,nextInv).includes(i)));
   update();
-  if(causalClosed.length&&depleted.length){
-    const labels=depleted.map(name).join('、');
+  if(causalClosed.length&&causalDepleted.length){
+    const labels=causalDepleted.map(name).join('、');
     showToast(`${labels}用完了`,`${causalClosed.length} 道菜暂时做不了了`);
   }else showToast(`${r[0]}完成`);
 }
