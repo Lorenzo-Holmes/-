@@ -1,19 +1,26 @@
 # DAY 1 正式菜品资产
 
-这里存放 DAY 1 四道菜的正式透明背景 PNG。
+此前验收通过的 DAY 1 四道菜原 PNG 已通过用户提供的 `fridge_clear_game_images_package.zip` 恢复。
 
-固定文件名：
+运行版使用：
 
-- `dish_tomato_egg.png` — 番茄炒蛋
-- `dish_egg_fried_rice.png` — 蛋炒饭
-- `dish_milk_egg.png` — 牛奶蒸蛋
-- `dish_onion_egg.png` — 洋葱煎蛋
+- `day1_dishes_atlas.webp` — 256×256，2 列 × 2 行 WebP 图集。
 
-要求：
+该图集仅做运行尺寸与编码优化，不重新生成菜品美术。源 PNG 文件与 SHA-256 记录见 `docs/12_DAY1_ASSET_MAPPING.md`。
 
-- 透明背景、统一盘碗视角与尺寸等级。
-- 比原始食材略暖、更有奖励感，但保持家常菜。
-- 不重新生成替代图；优先恢复此前已验收原文件。
-- 文件补齐后，在 `game/enhancements.js` 的 `DISH_ASSETS` 填写相对路径。
+## 图集布局
 
-接入后检查奖励卡、今晚菜单缩略图和菜品详情。
+| 行 / 列 | 0 | 1 |
+|---|---|---|
+| 0 | 番茄炒蛋 | 蛋炒饭 |
+| 1 | 牛奶蒸蛋 | 洋葱煎蛋 |
+
+运行时由 `game/formal-assets.js` 映射到 `te / fr / me / oe`。
+
+正式图已用于：
+
+- 完成菜品奖励卡；
+- “今晚菜单”缩略图；
+- 已完成菜品详情。
+
+正式图接入后的浏览器 Gate 已确认四道 DAY 1 菜品图格都可正常渲染。
