@@ -50,5 +50,6 @@ jobs:
 
       - name: Check dish image hotfix markers
         run: |
-          grep -q "formal-dish-img-sprite" game/dish-render-hotfix.js
-          grep -q "width:200%!important" game/dish-render-hotfix.js
+          grep -q "formal-dish-svg" game/dish-render-hotfix.js
+          grep -q "<image href=" game/dish-render-hotfix.js
+          grep -q "viewBox=\"0 0 128 128\"" game/dish-render-hotfix.js

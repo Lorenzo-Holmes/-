@@ -1,30 +1,23 @@
 (()=>{
 const DAY1_DISH_ATLAS='./assets/dishes/day1/day1_dishes_atlas.webp';
 const DAY1_DISH_CELLS={te:[0,0],fr:[1,0],me:[0,1],oe:[1,1]};
-
-function dishAtlasVisual(id){
-  const cell=DAY1_DISH_CELLS[id];
-  if(!cell)return Object.keys(R[id][1]).slice(0,2).map(emoji).join('');
-  const [x,y]=cell;
-  return `<span class="formal-dish-sprite formal-dish-img-sprite" aria-hidden="true"><img class="formal-dish-atlas-image" src="${DAY1_DISH_ATLAS}" alt="" draggable="false" style="left:-${x*100}%;top:-${y*100}%"></span>`;
-}
 function dishVisual(id){
-  return Q?.[0]===1?dishAtlasVisual(id):Object.keys(R[id][1]).slice(0,2).map(emoji).join('');
+  if(Q?.[0]!==1||!DAY1_DISH_CELLS[id])return Object.keys(R[id][1]).slice(0,2).map(emoji).join('');
+  const [x,y]=DAY1_DISH_CELLS[id];
+  const ox=x*128,oy=y*128;
+  return `<svg class="formal-dish-svg" viewBox="0 0 128 128" aria-hidden="true" focusable="false"><image href="${DAY1_DISH_ATLAS}" x="${-ox}" y="${-oy}" width="256" height="256" preserveAspectRatio="none"/></svg>`;
 }
-
 renderMenu=function(){
   el('doneCount').textContent=S.done.length+' 道';
   el('doneList').innerHTML=S.done.map(id=>`<button type="button" class="done-dish" data-done-recipe="${id}"><span class="done-thumb">${dishVisual(id)}</span><span class="done-name">${R[id][0]}</span></button>`).join('');
   el('possible').textContent=`还能做 ${possibleIds().length} 道 ＞`;
   el('doneList').querySelectorAll('[data-done-recipe]').forEach(btn=>btn.addEventListener('click',()=>showCompletedDish(btn.dataset.doneRecipe)));
 };
-
 showCompletedDish=function(id){
   const r=R[id];
   showModal(`<div class="dish-detail-thumb">${dishVisual(id)}</div><h2>${r[0]}</h2><p>👥 ${r[2]} 人份 · ⏱ ${r[3]} 分钟 · 🔥 ${r[5]} kcal</p><div class="modal-actions"><button class="primary" id="closeDishDetail">知道了</button></div>`);
   el('closeDishDetail').addEventListener('click',closeModal);
 };
-
 showDishReward=function(id){
   clearTimeout(rewardTimer);
   let reward=app.querySelector('.dish-reward');
@@ -33,13 +26,10 @@ showDishReward=function(id){
   requestAnimationFrame(()=>reward.classList.add('show'));
   rewardTimer=setTimeout(()=>reward.classList.remove('show'),700);
 };
-
 const style=document.createElement('style');
 style.textContent=`
-.done-thumb,.reward-thumb,.dish-detail-thumb{position:relative}
-.formal-dish-img-sprite{display:block;overflow:hidden;background-image:none!important;background-color:transparent}
-.done-thumb>.formal-dish-img-sprite,.reward-thumb>.formal-dish-img-sprite,.dish-detail-thumb>.formal-dish-img-sprite{position:absolute!important;inset:0!important;width:auto!important;height:auto!important;flex:none}
-.formal-dish-img-sprite>.formal-dish-atlas-image{position:absolute!important;display:block!important;width:200%!important;height:200%!important;max-width:none!important;max-height:none!important;object-fit:fill!important;pointer-events:none;user-select:none}
+.formal-dish-svg{display:block;width:100%;height:100%;overflow:hidden}
+.done-thumb .formal-dish-svg,.reward-thumb .formal-dish-svg,.dish-detail-thumb .formal-dish-svg{width:100%;height:100%}
 `;
 document.head.appendChild(style);
 })();
