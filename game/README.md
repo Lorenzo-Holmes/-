@@ -6,6 +6,16 @@
 
 `play.html` 作为兼容入口，通过 iframe 加载 `index.html`；核心事件兼容问题已经在运行代码内正式修复，不再依赖 iframe 点击补丁。
 
+正式 Worker：`https://worker.1106314996.workers.dev/`
+
+用户已确认：
+
+- `/`
+- `/game/index.html`
+- `/game/play.html`
+
+均可正常打开。
+
 ## 本地运行
 
 从仓库根目录启动静态 HTTP server，例如：
@@ -54,9 +64,13 @@ DAY 1 已接入此前验收通过的正式食材和四道菜美术。
 
 ## 验证状态
 
+当前代码已合并到 `main`。
+
+合并提交：`5d337968c23be70cfc932ac35b342f84c5199bd8`
+
 - 主 QA Chromium Gate：36 / 36。
 - 首次推进规则 Gate：20 / 20。
 - DAY 1 正式资产 Gate：38 / 38。
-- GitHub Actions `static-qa` 持续检查核心脚本和正式图集。
+- GitHub Actions `static-qa` 已在 `main` 合并提交上通过。
 
-当前仅剩正式部署 URL 的 `index.html / play.html` smoke test；部署验证通过后即可将 PR #1 转为 Ready。
+当前唯一剩余发布确认：Cloudflare Worker 重新部署 / 确认使用最新 `main` 后，检查两张正式 WebP 无 404 / MIME 问题，DAY 1 正式图正常显示，Console 无阻断错误。
