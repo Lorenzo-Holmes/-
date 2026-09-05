@@ -2,7 +2,15 @@
 
 ## 当前状态
 
-**真实试玩 QA、首次推进规则和 DAY 1 正式美术层均已完成本地 Chromium Gate。当前唯一剩余发布 Gate 是正式部署后的入口 smoke test。**
+**真实试玩 QA、首次推进规则和 DAY 1 正式美术层均已完成并合并到 `main`。**
+
+合并提交：`5d337968c23be70cfc932ac35b342f84c5199bd8`
+
+GitHub Actions `static-qa` 已在该合并提交上完成并通过。
+
+正式 Worker：`https://worker.1106314996.workers.dev/`
+
+用户已确认根路径、`/game/index.html`、`/game/play.html` 均可正常打开。当前唯一剩余发布确认是：确保 Cloudflare Worker 实际部署的是最新 `main` 提交，并在部署环境确认正式 WebP 加载和 Console 无阻断错误。
 
 稳定试玩入口：[`../game/play.html`](../game/play.html)
 
@@ -110,6 +118,8 @@ GitHub Actions：`.github/workflows/static-qa.yml`
 - DAY 1 正式食材 / 菜品图集存在；
 - 正式资产映射文档存在。
 
+`main` 合并提交上的 run #29 已通过。
+
 ## 关卡数值验证
 
 8 / 8 三星核心路线仍可达。
@@ -123,21 +133,21 @@ GitHub Actions：`.github/workflows/static-qa.yml`
 
 本轮没有修改已验证的库存、菜谱和三星条件。
 
-## 当前唯一剩余 Gate
+## 当前唯一剩余发布确认
 
-正式部署后完成：
+Cloudflare Worker 使用最新 `main` 构建后确认：
 
-1. 打开 `game/index.html`。
-2. 打开 `game/play.html`。
-3. 两入口各完成至少一次 DAY 1 基础操作。
-4. 检查正式 WebP 图集实际通过部署环境返回成功。
-5. Console 无阻断错误 / 404 / MIME 问题。
-6. 手机实际尺寸再做一次 360×640 smoke check。
+1. `game/index.html` 可打开。
+2. `game/play.html` 可打开。
+3. 两张正式 WebP 无 404 / MIME 问题。
+4. DAY 1 正式食材与菜品正常显示。
+5. Console 无阻断 JavaScript 错误。
+6. 360×640 部署环境快速复核正常。
 
-仓库目前没有 Cloudflare / `pages.dev` / `workers.dev` 或其他正式部署 URL 配置，当前环境也没有已连接的 Cloudflare 发布工具，因此此 Gate 需要部署 URL 可访问后执行。
+当前 ChatGPT 运行环境无法独立解析该 `workers.dev` 地址，因此部署 URL 的可访问性与最终现场 smoke 以用户浏览器 / Cloudflare 侧为准。
 
 ## 下一步
 
 不要再新增玩法系统。
 
-下一步固定为：**部署当前分支 → 两入口 smoke test → PR #1 从 Draft 转 Ready → 合并 → 进入投稿包装 / 录屏。**
+下一步固定为：**确认 Cloudflare 已部署最新 `main` → 完成部署现场 smoke → 关闭发布 Gate Issue #2 → 进入投稿包装 / 录屏。**
