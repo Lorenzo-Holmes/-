@@ -8,7 +8,19 @@
 
 ## 当前状态
 
-**比赛版候选 v0.4 已在 `fix/real-play-batch-a` 完成功能 QA、首次推进规则和 DAY 1 正式美术接入。当前只剩正式部署入口 smoke test。**
+**比赛版候选 v0.4 已合并到 `main`。**
+
+合并提交：`5d337968c23be70cfc932ac35b342f84c5199bd8`
+
+正式 Worker 入口：`https://worker.1106314996.workers.dev/`
+
+用户已确认以下入口可正常打开：
+
+- `/`
+- `/game/index.html`
+- `/game/play.html`
+
+当前剩余发布确认只有一项：确认 Cloudflare Worker 已部署上述最新 `main` 提交，并在部署环境检查正式 WebP 与 Console。
 
 稳定试玩入口：[`game/play.html`](./game/play.html)
 
@@ -47,15 +59,15 @@
 
 8 个关卡的三星核心路线仍已程序化验证可达；最终关可达：**38 / 40 分钟、7 / 7 份、1180 / 1250 kcal**。
 
-当前 Chromium Gate：
+Chromium Gate：
 
 - 主 QA Gate：36 / 36 通过；
 - 首次推进规则 Gate：20 / 20 通过；
 - DAY 1 正式资产 Gate：38 / 38 通过。
 
-DAY 1 正式素材来源与运行图集映射见 [`docs/12_DAY1_ASSET_MAPPING.md`](./docs/12_DAY1_ASSET_MAPPING.md)。
+GitHub Actions `static-qa` 在 `main` 合并提交上已通过。
 
-当前唯一剩余发布 Gate：正式部署后 smoke test `game/index.html` / `game/play.html`、正式 WebP 加载与 Console。
+DAY 1 正式素材来源与运行图集映射见 [`docs/12_DAY1_ASSET_MAPPING.md`](./docs/12_DAY1_ASSET_MAPPING.md)。
 
 ## AI / 开发者从这里开始
 
