@@ -68,16 +68,16 @@
 }
 
 .dish-reward .reward-thumb {
-  width: 86px;
-  height: 86px;
+  width: 84px;
+  height: 84px;
   margin: 0 auto 8px;
-  border-radius: 50%;
-  background: #fffdf8;
+  border-radius: 22px;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: inset 0 0 0 5px #efe2cd, 0 4px 10px rgba(72,50,34,.12);
+  box-shadow: 0 6px 18px #0002;
   font-size: 35px;
 }
 
@@ -132,11 +132,10 @@
 .done-dish:nth-child(2n) { transform: rotate(.5deg); }
 
 .done-dish .done-thumb {
-  width: 27px;
-  height: 27px;
-  border-radius: 50%;
-  background: rgba(255,252,245,.82);
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,.62);
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #fff9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,16 +151,16 @@
 }
 
 .dish-detail-thumb {
-  width: 100px;
-  height: 100px;
-  margin: 2px auto 11px;
-  border-radius: 50%;
-  background: #fffdf8;
+  width: 96px;
+  height: 96px;
+  margin: 4px auto 10px;
+  border-radius: 24px;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: inset 0 0 0 6px #eee0ca, 0 5px 12px rgba(73,50,33,.12);
+  box-shadow: 0 6px 18px #0002;
   font-size: 38px;
 }
 
