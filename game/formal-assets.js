@@ -35,7 +35,7 @@ renderIngredients=function(){
   fridge.innerHTML=Object.keys(Q[3]).map((i,j)=>{
     const q=S.inv[i]||0;if(!q)return'';
     const fixed=isDay1&&DAY1_LAYOUT[i],highlight=S.highlightIngredients?.includes(i);
-    return`<button class="ingredient ${fixed?'day1-pos':'p'+(j%12)} ${(Q[4][i]||0)>0?'urgent-food':''} ${reserved[i]?'reserved':''} ${highlight?'recipe-highlight':''}" ${fixed?`style="${day1Position(i)}"`:''} data-ing="${i}" aria-label="${name(i)}，剩余 ${q}"><span class="icon">${isDay1?formalIngredientVisual(i,q):ingredientVisual(i)}</span><span class="label">${name(i)}</span><span class="qty">×${q}</span></button>`
+    return`<button class="ingredient ${fixed?'day1-pos':'p'+(j%12)} ${(Q[4][i]||0)>0?'urgent-food':''} ${reserved[i]?'reserved':''} ${highlight?'recipe-highlight':''}" ${fixed?`style="${day1Position(i)}"`:''} data-ing="${i}" aria-label="${name(i)}，剩余 ${q}"><span class="icon">${formalIngredientVisual(i,q)}</span><span class="label">${name(i)}</span><span class="qty">×${q}</span></button>`
   }).join('');
   fridge.querySelectorAll('[data-ing]').forEach(bindIngredientInput);
 };
@@ -48,7 +48,7 @@ bindIngredientInput=function(btn){
     if(!dragState||dragState.pointerId!==e.pointerId||dragState.button!==btn)return;
     const dx=e.clientX-dragState.startX,dy=e.clientY-dragState.startY;
     if(!dragState.dragging&&Math.hypot(dx,dy)<8)return;
-    if(!dragState.dragging){dragState.dragging=true;suppressIngredientClickUntil=Date.now()+450;btn.classList.add('dragging');const ghost=document.createElement('div');ghost.className='drag-ghost';ghost.innerHTML=`${Q?.[0]===1?formalIngredientVisual(id,1):ingredientVisual(id)}<small>${name(id)}</small>`;document.body.appendChild(ghost);dragState.ghost=ghost}
+    if(!dragState.dragging){dragState.dragging=true;suppressIngredientClickUntil=Date.now()+450;btn.classList.add('dragging');const ghost=document.createElement('div');ghost.className='drag-ghost';ghost.innerHTML=`${formalIngredientVisual(id,1)}<small>${name(id)}</small>`;document.body.appendChild(ghost);dragState.ghost=ghost}
     e.preventDefault();moveDragGhost(e.clientX,e.clientY)
   });
   btn.addEventListener('pointerup',finishIngredientPointer);btn.addEventListener('pointercancel',finishIngredientPointer);
@@ -56,18 +56,18 @@ bindIngredientInput=function(btn){
 
 renderSlots=function(){
   const slots=el('slots');
-  slots.innerHTML=Array.from({length:4},(_,j)=>S.sel[j]?`<div class="slot">${Q[0]===1?formalIngredientVisual(S.sel[j],1):emoji(S.sel[j])}<button class="slot-x" aria-label="移除${name(S.sel[j])}" data-remove="${j}">×</button></div>`:'<div class="slot empty"></div>').join('');
+  slots.innerHTML=Array.from({length:4},(_,j)=>S.sel[j]?`<div class="slot">${formalIngredientVisual(S.sel[j],1)}<button class="slot-x" aria-label="移除${name(S.sel[j])}" data-remove="${j}">×</button></div>`:'<div class="slot empty"></div>').join('');
   slots.querySelectorAll('[data-remove]').forEach(x=>x.addEventListener('click',()=>{S.sel.splice(+x.dataset.remove,1);update()}));
 };
 
 renderMenu=function(){
   el('doneCount').textContent=S.done.length+' 道';
-  el('doneList').innerHTML=S.done.map(id=>`<button type="button" class="done-dish" data-done-recipe="${id}"><span class="done-thumb">${Q[0]===1?formalDishThumb(id):Object.keys(R[id][1]).slice(0,2).map(emoji).join('')}</span><span class="done-name">${R[id][0]}</span></button>`).join('');
+  el('doneList').innerHTML=S.done.map(id=>`<button type="button" class="done-dish" data-done-recipe="${id}"><span class="done-thumb">${formalDishThumb(id)}</span><span class="done-name">${R[id][0]}</span></button>`).join('');
   el('possible').textContent=`还能做 ${possibleIds().length} 道 ＞`;
   el('doneList').querySelectorAll('[data-done-recipe]').forEach(btn=>btn.addEventListener('click',()=>showCompletedDish(btn.dataset.doneRecipe)));
 };
 showCompletedDish=function(id){
-  const r=R[id],visual=Q[0]===1?formalDishThumb(id):Object.keys(r[1]).slice(0,2).map(emoji).join('');
+  const r=R[id],visual=formalDishThumb(id);
   showModal(`<div class="dish-detail-thumb">${visual}</div><h2>${r[0]}</h2><p>👥 ${r[2]} 人份 · ⏱ ${r[3]} 分钟 · 🔥 ${r[5]} kcal</p><div class="modal-actions"><button class="primary" id="closeDishDetail">知道了</button></div>`);
   el('closeDishDetail').addEventListener('click',closeModal);
 };
@@ -75,7 +75,7 @@ showDishReward=function(id){
   clearTimeout(rewardTimer);
   let reward=app.querySelector('.dish-reward');
   if(!reward){reward=document.createElement('div');reward.className='dish-reward';app.querySelector('.game')?.appendChild(reward)}
-  const visual=Q[0]===1?formalDishThumb(id):Object.keys(R[id][1]).slice(0,2).map(emoji).join('');
+  const visual=formalDishThumb(id);
   reward.innerHTML=`<div class="reward-thumb">${visual}</div><b>${R[id][0]}</b><small>完成一道菜</small>`;
   requestAnimationFrame(()=>reward.classList.add('show'));
   rewardTimer=setTimeout(()=>reward.classList.remove('show'),700);

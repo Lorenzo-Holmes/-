@@ -450,11 +450,11 @@ button:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #d8c1a4;
-  border-radius: 14px;
-  background: #fff9;
-  box-shadow: 0 4px 9px #5473;
-  font-size: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 39px;
+  filter: drop-shadow(0 4px 4px rgba(55,83,95,.2));
   transition: transform .1s ease, filter .15s ease;
 }
 
@@ -520,7 +520,7 @@ button:focus-visible {
   object-fit: contain;
   object-position: center bottom;
   display: block;
-  filter: drop-shadow(0 4px 4px #5473);
+  filter: drop-shadow(0 4px 4px rgba(49,80,91,.22));
 }
 .ingredient.day1-pos .icon { align-items: flex-end; }
 
