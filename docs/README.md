@@ -43,15 +43,23 @@ AI 或开发者进入项目后，建议按以下顺序阅读：
 
 ## 当前项目状态
 
-比赛版候选已完成三组本地 Chromium Gate：
+比赛版候选 v0.4 已合并到 `main`。
+
+合并提交：`5d337968c23be70cfc932ac35b342f84c5199bd8`
+
+三组本地 Chromium Gate 均通过：
 
 - 主 QA Gate：36 / 36；
 - 首次推进 Gate：20 / 20；
 - DAY 1 正式资产 Gate：38 / 38。
 
-此前缺失的 DAY 1 正式食材与四道菜素材已经通过用户上传的 `fridge_clear_game_images_package.zip` 恢复，并以移动端运行图集接入仓库。
+GitHub Actions `static-qa` 已在 `main` 合并提交上通过。
 
-当前唯一剩余发布 Gate：正式部署后 smoke test `game/index.html` / `game/play.html`、正式 WebP 请求和 Console。
+DAY 1 正式食材与四道菜素材已通过用户上传的 `fridge_clear_game_images_package.zip` 恢复，并以移动端运行图集接入仓库。
+
+正式 Worker：`https://worker.1106314996.workers.dev/`
+
+用户已确认根路径、`/game/index.html`、`/game/play.html` 可打开。当前唯一剩余发布确认是：确保 Cloudflare Worker 已部署最新 `main`，并在部署环境确认正式 WebP 与 Console 无阻断错误。
 
 稳定试玩入口：`../game/play.html`。
 
