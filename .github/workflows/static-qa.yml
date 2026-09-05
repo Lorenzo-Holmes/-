@@ -39,6 +39,9 @@ jobs:
           grep -q "首次推进至少完成 1 道菜" game/enhancements.js
           grep -q "至少完成 1 道菜后，才能首次解锁下一关" game/enhancements.js
 
+      - name: Check full food-art coverage
+        run: node game/asset-coverage-check.js
+
       - name: Check formal DAY 1 assets
         run: |
           test -s game/assets/ingredients/day1/day1_ingredients_atlas.webp
