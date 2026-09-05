@@ -2,184 +2,175 @@
 
 ## 总体结论
 
-真实试玩问题对应的 Batch A、Batch B、Batch C 已全部完成代码实现。
+真实试玩问题对应的 Batch A、Batch B、Batch C、首次推进规则和 DAY 1 正式资产接入已经完成。
 
-本地 Chromium 已完成两组交互 Gate：
+当前三组 Chromium Gate：
 
-- 主 QA Gate：**36 / 36 通过，0 失败**。
-- 首次推进规则 Gate：**20 / 20 通过，0 失败**。
+- 主 QA Gate：**36 / 36 通过**。
+- 首次推进规则 Gate：**20 / 20 通过**。
+- DAY 1 正式资产 Gate：**38 / 38 通过**。
 
-DAY 1 的“4 道鸡蛋菜争抢 3 个鸡蛋”结构、8 关库存和菜谱数值没有被改变。
-
-当前剩余工作只与正式 PNG 和最终部署入口有关。
+当前只剩正式部署 URL 的入口级 smoke test。
 
 ## Batch A — 可发布基础
 
-状态：**完成并通过浏览器 Gate。**
+状态：**完成。**
 
-已修复：
-
-- QA-001：移除 DOM ID 自动暴露到 `window` 的事件依赖；`play.html` 不再承担 `close/confirm` iframe 补丁。
-- QA-002：烹饪改为事务式提交；机会成本提示只点名真正导致方案关闭的耗尽资源。
-- QA-006：DAY 1 恢复浪费金额；非满分优先“重新规划”；100% 恢复精算规划型、鸡蛋 MVP。
-- QA-007：所有食材增加名称 fallback，白菜 / 生菜可直接区分。
-- QA-008：`100svh` 弹性布局、即期 Chip 换行、短屏适配。
-- QA-009：主要 Hitbox 提高到约 44×44px 或更大。
-
-DAY 2–8 的逐食材 `wasteValue` 没有完整正式数据，因此没有自行编造；无法计算时结算金额显示 `—`。
+- QA-001：移除 DOM ID 自动全局事件依赖。
+- QA-002：事务式做菜提交 + 真正耗尽资源的机会成本提示。
+- QA-006：DAY 1 浪费金额、非满分重玩主 CTA、100% 鸡蛋 MVP。
+- QA-007：食材名称 fallback，解决共用 Emoji 辨识问题。
+- QA-008：`100svh` 弹性布局与短屏规则。
+- QA-009：关键 Hitbox ≥约 44×44px。
 
 ## Batch B — 核心交互
 
-状态：**QA-003 / 004 / 005 完成并通过浏览器 Gate；QA-010 接入层完成，正式 PNG 待恢复。**
+状态：**完成。**
 
-### QA-003 菜谱点击高亮
+- QA-003：点击菜谱只高亮对应库存食材，约 800ms 后解除，不自动选菜。
+- QA-004：Pointer Events 拖拽 + Ghost + drop target，同时保留点击并防止重复加入。
+- QA-005：首次两步教学，第一次成功开火后持久化完成状态。
+- QA-010：DAY 1 固定冰箱空间摆位与正式食材视觉已经接入。
 
-- 点击菜谱只高亮当前仍在库存中的对应食材。
-- 抽屉自动收起。
-- 高亮约 800ms 后解除。
-- 不自动加入、不扣库存、不自动开火。
+### QA-010 正式食材最终状态
 
-浏览器验证：点击“番茄炒蛋”实际高亮 2 个对应食材，料理槽保持为空。
+2026-09-05 用户上传 `fridge_clear_game_images_package.zip`，成功恢复此前验收通过的正式食材 PNG。
 
-### QA-004 Pointer Events 拖拽
+仓库运行版使用：
 
-- 支持 `pointerdown / pointermove / pointerup / pointercancel`。
-- 8px 位移阈值后进入拖拽。
-- 有 Ghost 与 drop target 反馈。
-- 放入料理区调用与点击相同的 `addIngredient()`。
-- 拖拽后抑制紧随其后的 click，避免重复加入。
+- `game/assets/ingredients/day1/day1_ingredients_atlas.webp`
 
-浏览器验证：真实鼠标把鸡蛋拖入料理槽，只加入 1 个鸡蛋。
+图集由原 PNG 等比缩放 / 透明画布拼装 / WebP 编码生成，不重新生成美术内容。
 
-### QA-005 两步教学
+正式视觉覆盖：
 
-首次 DAY 1：
+- 鸡蛋；
+- 番茄；
+- 剩米饭；
+- 牛奶；
+- 胡萝卜；
+- 半颗洋葱；
+- 午餐肉；
+- 拖拽 Ghost；
+- 料理槽单单位食材。
 
-1. `点击或拖动食材，把它放进料理区。`
-2. 第一次 READY 时：`配方凑齐了，开火试试。`
-
-第一次成功开火后写入教学完成状态，重新规划不重复强制播放。
-
-### QA-010 DAY 1 正式资产
-
-已完成：
-
-- DAY 1 固定空间摆位。
-- `Ingredient.asset` 接口。
-- UI 动态数量、“今天”、预扣与高亮层。
-- 正式资源目录骨架：
-  - `game/assets/ingredients/day1/`
-  - `game/assets/dishes/day1/`
-  - `game/assets/scene/day1/`
-
-未完成原因：此前已验收的正式 PNG 从未进入 Git，当前环境也没有原文件，无法从历史恢复。
-
-资产阻塞追踪：Issue #2。
+数量、“今天”、预扣与菜谱高亮继续由 UI 动态叠加。
 
 ## Batch C — 奖励与完整性
 
-状态：**完成并通过浏览器 Gate；正式菜品图片待恢复。**
+状态：**完成。**
 
-### QA-011 做菜奖励反馈
+- QA-011：约 800ms 烹饪锁定、锅体短动画、完成奖励卡、今晚菜单详情。
+- QA-012：DAY 8 达到推进门槛后进入 `8 / 8` 完成首页。
 
-- READY 后约 800ms `cooking` 状态。
-- 烹饪期间锁定冰箱、菜单、料理槽、清空、结束与重复开火。
-- 锅体轻量动画。
-- 约 800ms 后再次验证并一次性提交库存。
-- 完成后显示短奖励卡。
-- 今晚菜单升级为缩略条；点击完成菜查看人份、时间、kcal。
-- `DISH_ASSETS` 已预留正式菜品图片入口。
+### QA-011 正式菜品最终状态
 
-浏览器验证：烹饪中删除按钮无法撤回；完成后菜品详情正确显示。
+同一素材包恢复四道 DAY 1 正式菜品：
 
-### QA-012 DAY 8 完成态
+- 番茄炒蛋；
+- 蛋炒饭；
+- 牛奶蒸蛋；
+- 洋葱煎蛋。
 
-- 满足首次完成门槛后写入 `P.completed=true`。
-- 结果页显示“完成计划”。
-- 首页显示 `8 / 8` 与最好总星数。
-- 可查看关卡或重玩 DAY 8。
+运行版使用：
+
+- `game/assets/dishes/day1/day1_dishes_atlas.webp`
+
+正式菜品图已用于：
+
+- 完成奖励卡；
+- 今晚菜单缩略图；
+- 已完成菜品详情。
+
+源文件与运行图集完整映射见 `docs/12_DAY1_ASSET_MAPPING.md`。
 
 ## RISK-001 — 首次推进规则
 
-状态：**已按推荐方案实现并关闭 Issue #3。**
+状态：**完成。**
 
 正式规则：
 
 - 新玩家首次推进至少成功完成 1 道菜。
 - 不要求 100%。
 - 不要求三星。
-- 已经解锁的关卡不会因回头重玩 0 道菜而重新锁住。
+- 已解锁关卡不会因 0 道菜重玩重新锁住。
 - DAY 8 至少完成 1 道菜才进入最终完成态。
 
-0 道菜仍允许查看结算，但首次不会出现“下一关”，而是提示推进条件并返回关卡。
+Issue #3 已关闭。
 
-浏览器回归：**20 / 20 通过**，详见 `docs/11_PROGRESSION_GATE_REPORT.md`。
-
-## 结构调整
-
-运行版：
+## 当前运行结构
 
 - `game/index.html`
 - `game/styles.css`
 - `game/app.js`
 - `game/enhancements.css`
 - `game/enhancements.js`
+- `game/formal-assets.js`
+- `game/play.html`
 
-`game/play.html` 继续作为 iframe 兼容入口。
+`formal-assets.js` 只处理 DAY 1 正式视觉映射，不修改游戏规则。
 
-## 规则与浏览器验证
+## Gate 结果
 
-### 规则检查
+### 1. 主 QA Gate
 
-- `app.js` 通过 `node --check`。
-- `enhancements.js` 通过 `node --check`。
-- DAY 1 最优路线：100%，浪费 ¥0。
-- DAY 1 洋葱煎蛋错误分配路线：75%，剩牛奶×1，浪费 ¥4.80。
-- 最后一个鸡蛋耗尽时，因果提示只点名鸡蛋。
-
-### 主 Chromium Gate
-
-`docs/10_BROWSER_GATE_REPORT.md`
+详见 `docs/10_BROWSER_GATE_REPORT.md`。
 
 结果：**36 / 36 通过。**
 
-包括：
+覆盖教学、44px Hitbox、菜谱高亮、真实拖拽、800ms 烹饪锁定、DAY 1 75% / 100% 结算、DAY 8 完成态及四组移动端尺寸。
 
-- 两步教学。
-- 44px Hitbox。
-- 菜谱高亮。
-- 真实拖拽。
-- 800ms 烹饪锁定。
-- 菜品奖励卡与详情。
-- DAY 1 75% / 100% 结算。
-- DAY 8 完成首页。
-- 360×640 / 375×667 / 390×844 / 430×844。
-- 无捕获到的 runtime JS Error / unhandled rejection。
+### 2. 推进规则 Gate
 
-### 推进规则 Chromium Gate
-
-`docs/11_PROGRESSION_GATE_REPORT.md`
+详见 `docs/11_PROGRESSION_GATE_REPORT.md`。
 
 结果：**20 / 20 通过。**
 
-验证：
+覆盖首次 0 道菜不解锁、1 道菜可推进、已解锁进度不重锁以及 DAY 8 最终门槛。
 
-- 首次 0 道菜不解锁。
-- 完成 1 道菜即可推进。
-- 已解锁进度不会重锁。
-- DAY 8 0 道菜不完成。
-- DAY 8 完成 1 道菜后进入 8 / 8。
+### 3. 正式资产 Gate
 
-## 当前剩余项
+详见 `docs/13_FORMAL_ASSET_GATE_REPORT.md`。
 
-1. 从原生成会话或本地备份找回此前已验收的 DAY 1 正式食材 PNG。
-2. 找回四道 DAY 1 正式菜品 PNG。
-3. 将文件放入既定 `game/assets/...` 目录，并填写 `Ingredient.asset` / `DISH_ASSETS`。
-4. 正式图接入后重新跑 360×640 与 390×844 视觉 Gate。
-5. 正式部署后 smoke test `game/index.html` / `game/play.html` 与 Console。
+结果：**38 / 38 通过。**
+
+覆盖：
+
+- 7 种 DAY 1 正式食材；
+- 正式食材菜谱高亮；
+- 正式拖拽 Ghost；
+- 正式料理槽食材；
+- 四道 DAY 1 正式菜品奖励 / 菜单 / 详情；
+- 360×640、375×667、390×844、430×844；
+- 无横向溢出；
+- 开火仍位于首屏；
+- 无捕获到的 runtime JavaScript Error。
+
+## CI
+
+`.github/workflows/static-qa.yml` 已升级为检查：
+
+- `app.js / enhancements.js / formal-assets.js` 语法；
+- 运行入口文件；
+- 首次推进规则标记；
+- DAY 1 正式食材 / 菜品图集；
+- 正式资产映射文档。
+
+## 当前唯一剩余项
+
+正式部署后执行 smoke test：
+
+1. `game/index.html` 可访问。
+2. `game/play.html` 可访问。
+3. WebP 正式图集无 404 / MIME 错误。
+4. 两入口均可完成 DAY 1 基础交互。
+5. Console 无阻断错误。
+6. 360×640 真机 / 部署环境再做一次快速检查。
+
+当前仓库没有可解析的 Cloudflare / `pages.dev` / `workers.dev` 部署 URL，也没有已连接 Cloudflare 发布工具，因此无法在仓库侧自行完成这一项。
 
 ## 当前 Gate
 
-现在不应继续新增任何系统。
+功能、规则、移动端交互和 DAY 1 正式美术均已达到本地比赛版候选要求。
 
-下一步固定为：**恢复正式 PNG → 接入资产 → 正式图移动端复测 → 部署 smoke test → PR 转 Ready / 合并。**
+下一步固定为：**部署 → smoke test → PR #1 转 Ready → 合并 → 投稿包装 / 录屏。**
