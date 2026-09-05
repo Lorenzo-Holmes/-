@@ -21,6 +21,7 @@ jobs:
           node --check game/app.js
           node --check game/enhancements.js
           node --check game/formal-assets.js
+          node --check game/dish-render-hotfix.js
 
       - name: Check required runtime files
         run: |
@@ -29,7 +30,9 @@ jobs:
           test -f game/styles.css
           test -f game/enhancements.css
           test -f game/formal-assets.js
+          test -f game/dish-render-hotfix.js
           grep -q "formal-assets.js" game/index.html
+          grep -q "dish-render-hotfix.js" game/index.html
 
       - name: Check progression policy markers
         run: |
@@ -44,3 +47,8 @@ jobs:
           test -f game/assets/dishes/day1/README.md
           test -f game/assets/scene/day1/README.md
           test -f docs/12_DAY1_ASSET_MAPPING.md
+
+      - name: Check dish image hotfix markers
+        run: |
+          grep -q "formal-dish-img-sprite" game/dish-render-hotfix.js
+          grep -q "width:200%!important" game/dish-render-hotfix.js
