@@ -20,6 +20,7 @@ jobs:
         run: |
           node --check game/app.js
           node --check game/enhancements.js
+          node --check game/day3-8-food-assets.js
           node --check game/formal-assets.js
           node --check game/dish-render-hotfix.js
 
@@ -29,8 +30,10 @@ jobs:
           test -f game/play.html
           test -f game/styles.css
           test -f game/enhancements.css
+          test -f game/day3-8-food-assets.js
           test -f game/formal-assets.js
           test -f game/dish-render-hotfix.js
+          grep -q "day3-8-food-assets.js" game/index.html
           grep -q "formal-assets.js" game/index.html
           grep -q "dish-render-hotfix.js" game/index.html
 
