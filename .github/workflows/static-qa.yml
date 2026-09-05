@@ -1,0 +1,40 @@
+name: static-qa
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check core JavaScript syntax
+        run: |
+          node --check game/app.js
+          node --check game/enhancements.js
+
+      - name: Check required runtime files
+        run: |
+          test -f game/index.html
+          test -f game/play.html
+          test -f game/styles.css
+          test -f game/enhancements.css
+
+      - name: Check progression policy markers
+        run: |
+          grep -q "首次推进至少完成 1 道菜" game/enhancements.js
+          grep -q "至少完成 1 道菜后，才能首次解锁下一关" game/enhancements.js
+
+      - name: Check asset drop-in directories
+        run: |
+          test -f game/assets/ingredients/day1/README.md
+          test -f game/assets/dishes/day1/README.md
+          test -f game/assets/scene/day1/README.md
