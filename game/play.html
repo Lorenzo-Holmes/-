@@ -4,24 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>冰箱清空计划 · Play</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#222}iframe{display:block;width:100%;height:100%;border:0}</style>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#222}
+iframe{display:block;width:100%;height:100%;border:0}
+</style>
 </head>
 <body>
 <iframe id="game" src="./index.html" title="冰箱清空计划"></iframe>
-<script>
-const frame=document.getElementById('game');
-frame.addEventListener('load',()=>{
-  const w=frame.contentWindow,d=frame.contentDocument;
-  d.addEventListener('click',e=>{
-    const id=e.target?.id;
-    if(id==='close' && typeof w.setDrawer==='function'){e.preventDefault();w.setDrawer(false);}
-    if(id==='confirm' && typeof w.finishGame==='function'){
-      e.preventDefault();
-      d.getElementById('modalWrap')?.classList.remove('show');
-      w.finishGame();
-    }
-  },true);
-});
-</script>
 </body>
 </html>

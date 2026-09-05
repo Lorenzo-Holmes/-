@@ -1,0 +1,46 @@
+name: static-qa
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check core JavaScript syntax
+        run: |
+          node --check game/app.js
+          node --check game/enhancements.js
+          node --check game/formal-assets.js
+
+      - name: Check required runtime files
+        run: |
+          test -f game/index.html
+          test -f game/play.html
+          test -f game/styles.css
+          test -f game/enhancements.css
+          test -f game/formal-assets.js
+          grep -q "formal-assets.js" game/index.html
+
+      - name: Check progression policy markers
+        run: |
+          grep -q "首次推进至少完成 1 道菜" game/enhancements.js
+          grep -q "至少完成 1 道菜后，才能首次解锁下一关" game/enhancements.js
+
+      - name: Check formal DAY 1 assets
+        run: |
+          test -s game/assets/ingredients/day1/day1_ingredients_atlas.webp
+          test -s game/assets/dishes/day1/day1_dishes_atlas.webp
+          test -f game/assets/ingredients/day1/README.md
+          test -f game/assets/dishes/day1/README.md
+          test -f game/assets/scene/day1/README.md
+          test -f docs/12_DAY1_ASSET_MAPPING.md
