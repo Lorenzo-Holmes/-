@@ -48,8 +48,9 @@ jobs:
           test -f game/assets/scene/day1/README.md
           test -f docs/12_DAY1_ASSET_MAPPING.md
 
-      - name: Check dish image hotfix markers
+      - name: Check dish image deployment-safe hotfix
         run: |
+          grep -q "data:image/webp;base64" game/dish-render-hotfix.js
           grep -q "formal-dish-svg" game/dish-render-hotfix.js
           grep -q "<image href=" game/dish-render-hotfix.js
           grep -q "viewBox=\"0 0 128 128\"" game/dish-render-hotfix.js
