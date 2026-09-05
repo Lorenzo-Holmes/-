@@ -1,22 +1,23 @@
 # DAY 1 正式食材资产
 
-这里存放已经验收通过的 DAY 1 正式透明背景食材 PNG。
+此前验收通过的 DAY 1 原 PNG 已通过用户提供的 `fridge_clear_game_images_package.zip` 恢复。
 
-建议固定文件名：
+运行版使用：
 
-- `ingredient_egg.png` — 鸡蛋
-- `ingredient_tomato.png` — 番茄
-- `ingredient_rice.png` — 剩米饭
-- `ingredient_milk.png` — 牛奶
-- `ingredient_carrot.png` — 胡萝卜
-- `ingredient_onion.png` — 半颗洋葱
-- `ingredient_luncheon_meat.png` — 午餐肉
+- `day1_ingredients_atlas.webp` — 320×240，4 列 × 3 行透明 WebP 图集。
 
-要求：
+该图集只对原 PNG 做等比缩放、透明画布拼装与 WebP 编码优化，没有重新生成或改变美术设计。原 PNG 的来源、文件名与 SHA-256 记录见 `docs/12_DAY1_ASSET_MAPPING.md`。
 
-- 图片本体不写数量、“今天”、选中态或高亮。
-- 透明背景，底部锚点稳定。
-- 不重新生成替代图；应恢复此前已验收的原文件。
-- 文件补齐后，在 `game/app.js` 对应 DAY 1 Ingredient 的 `asset` 字段填写相对路径。
+## 图集布局
 
-接入后必须重新跑 360×640 与 390×844 Gate。
+| 行 / 列 | 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| 0 | 鸡蛋×1 | 鸡蛋×2 | 鸡蛋×3 | 番茄×1 |
+| 1 | 番茄×2 | 午餐肉×1 | 午餐肉×2 | 牛奶×1 |
+| 2 | 胡萝卜×1 | 半颗洋葱×1 | 剩米饭×1 | 空 |
+
+运行时由 `game/formal-assets.js` 根据当前库存数量选择对应图格。
+
+数量、“今天”、预扣、选中态和菜谱高亮继续由 UI 动态叠加，不写进图片。
+
+正式图接入后的移动端 Gate 已重新验证：360×640、375×667、390×844、430×844 均保持核心操作首屏可见。
