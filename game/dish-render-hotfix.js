@@ -37,7 +37,7 @@ showDishReward=function(id){
 const style=document.createElement('style');
 style.textContent=`
 .formal-dish-img-sprite{position:relative;display:block;width:100%;height:100%;overflow:hidden;background-image:none!important;background-color:transparent}
-.formal-dish-atlas-image{position:absolute;display:block;width:200%;height:200%;max-width:none!important;max-height:none!important;object-fit:fill;pointer-events:none;user-select:none}
+.formal-dish-img-sprite>.formal-dish-atlas-image{position:absolute!important;display:block!important;width:200%!important;height:200%!important;max-width:none!important;max-height:none!important;object-fit:fill!important;pointer-events:none;user-select:none}
 .done-thumb .formal-dish-img-sprite,.reward-thumb .formal-dish-img-sprite,.dish-detail-thumb .formal-dish-img-sprite{width:100%;height:100%}
 `;
 document.head.appendChild(style);
