@@ -36,9 +36,10 @@ showDishReward=function(id){
 
 const style=document.createElement('style');
 style.textContent=`
-.formal-dish-img-sprite{position:relative;display:block;flex:none;width:100%;height:100%;overflow:hidden;background-image:none!important;background-color:transparent}
+.done-thumb,.reward-thumb,.dish-detail-thumb{position:relative}
+.formal-dish-img-sprite{display:block;overflow:hidden;background-image:none!important;background-color:transparent}
+.done-thumb>.formal-dish-img-sprite,.reward-thumb>.formal-dish-img-sprite,.dish-detail-thumb>.formal-dish-img-sprite{position:absolute!important;inset:0!important;width:auto!important;height:auto!important;flex:none}
 .formal-dish-img-sprite>.formal-dish-atlas-image{position:absolute!important;display:block!important;width:200%!important;height:200%!important;max-width:none!important;max-height:none!important;object-fit:fill!important;pointer-events:none;user-select:none}
-.done-thumb .formal-dish-img-sprite,.reward-thumb .formal-dish-img-sprite,.dish-detail-thumb .formal-dish-img-sprite{width:100%;height:100%}
 `;
 document.head.appendChild(style);
 })();
