@@ -6,96 +6,57 @@
 
 > 你的冰箱里没有剩菜，只有还没被想出来的晚饭。
 
-## 当前状态
+## 当前阶段与入口
 
-**比赛版候选 v0.4 已合并到 `main`。**
+当前为 **v0.4 比赛版候选的发布收敛阶段**，不是已经完成冻结的正式 Release。
 
-合并提交：`5d337968c23be70cfc932ac35b342f84c5199bd8`
+当前实现完成度、代码基线、历史验收和未验证项目统一维护在 [`docs/08_IMPLEMENTATION_STATUS.md`](./docs/08_IMPLEMENTATION_STATUS.md)。其他入口文档不再复制一份易过期的状态表。
 
-正式 Worker 入口：`https://worker.1106314996.workers.dev/`
+正式 Worker：`https://worker.1106314996.workers.dev/`
 
-用户已确认以下入口可正常打开：
+试玩路径：`/`、`/game/index.html`、`/game/play.html`。
 
-- `/`
-- `/game/index.html`
-- `/game/play.html`
+仓库兼容入口：[`game/play.html`](./game/play.html)。本地须从仓库根目录启动静态 HTTP 服务，而不是用文件协议打开。
 
-当前剩余发布确认只有一项：确认 Cloudflare Worker 已部署上述最新 `main` 提交，并在部署环境检查正式 WebP 与 Console。
+PR #1 已合并；Issue #2 只跟踪 Production Smoke，不再承担 PR 转 Ready / 合并步骤。部署验收通过以前，不关闭 Issue #2，不创建正式 v0.4 Tag / Release。
 
-稳定试玩入口：[`game/play.html`](./game/play.html)
+## 比赛版范围
 
-运行版：
+- 8 个关卡，25 种食材，20 道菜。
+- 即期食材、累计烹饪时间、总份数、总热量四类规则。
+- 四格料理区、多重集合配方匹配，预扣 / 撤回 / 成功后正式扣库存。
+- 点击和 Pointer Events 拖拽、菜谱食材高亮、两步首次教学、机会成本反馈。
+- 约 800ms 烹饪反馈、菜品奖励卡、今晚菜单详情。
+- 三星结算、浪费、营养、冰箱人格、localStorage 进度保存。
+- 首次推进至少完成一道菜；不要求 100% 或三星；已解锁进度不重锁。
+- DAY 8 完成门槛满足后显示 8 / 8 完成态。
+- 手机竖屏优先，不设置现实倒计时。
 
-- [`game/index.html`](./game/index.html) — 页面壳；
-- [`game/styles.css`](./game/styles.css) — 基础视觉与移动适配；
-- [`game/app.js`](./game/app.js) — 数据、规则与核心交互；
-- [`game/enhancements.css`](./game/enhancements.css) — 烹饪奖励、完成态与推进提示；
-- [`game/enhancements.js`](./game/enhancements.js) — 奖励反馈、菜单详情、最终通关与首次推进规则；
-- [`game/formal-assets.js`](./game/formal-assets.js) — DAY 1 正式食材 / 菜品视觉层。
-
-当前版本包含：
-
-- 8 个首发关卡；
-- 25 种食材；
-- 20 道菜；
-- 即期食材、累计烹饪时间、总份数、总热量四类规则；
-- 四格料理区、配方匹配、预扣 / 撤回 / 正式库存扣除；
-- 点击与 Pointer Events 拖拽；
-- 菜谱高亮、两步首次教学、机会成本反馈；
-- 三星结算、浪费、营养、冰箱人格；
-- 约 800ms 烹饪反馈、菜品奖励卡、今晚菜单详情；
-- DAY 8 的 8 / 8 完成首页；
-- DAY 1 已验收正式食材与四道菜美术；
-- localStorage 进度保存；
-- 手机竖屏优先；
-- 不设置现实倒计时。
-
-首次推进规则：
-
-- **至少成功完成 1 道菜，才首次解锁下一关；**
-- 不要求 100%；
-- 不要求三星；
-- 已解锁的下一关不会因为回头重玩 0 道菜而重新锁住。
-
-8 个关卡的三星核心路线仍已程序化验证可达；最终关可达：**38 / 40 分钟、7 / 7 份、1180 / 1250 kcal**。
-
-Chromium Gate：
-
-- 主 QA Gate：36 / 36 通过；
-- 首次推进规则 Gate：20 / 20 通过；
-- DAY 1 正式资产 Gate：38 / 38 通过。
-
-GitHub Actions `static-qa` 在 `main` 合并提交上已通过。
-
-DAY 1 正式素材来源与运行图集映射见 [`docs/12_DAY1_ASSET_MAPPING.md`](./docs/12_DAY1_ASSET_MAPPING.md)。
-
-## AI / 开发者从这里开始
-
-修改工程前请按顺序阅读：
-
-1. [`AGENTS.md`](./AGENTS.md) — 项目总约束、AI 工作规则、文档优先级。
-2. [`docs/README.md`](./docs/README.md) — canonical 设计文档索引。
-3. [`docs/08_IMPLEMENTATION_STATUS.md`](./docs/08_IMPLEMENTATION_STATUS.md) — 当前实际实现状态。
-4. [`docs/09_REAL_PLAY_QA_FIX_PLAN.md`](./docs/09_REAL_PLAY_QA_FIX_PLAN.md) — 真实试玩 QA 修复记录。
-5. [`docs/10_BROWSER_GATE_REPORT.md`](./docs/10_BROWSER_GATE_REPORT.md) — 主浏览器 Gate。
-6. [`docs/11_PROGRESSION_GATE_REPORT.md`](./docs/11_PROGRESSION_GATE_REPORT.md) — 首次推进规则 Gate。
-7. [`docs/12_DAY1_ASSET_MAPPING.md`](./docs/12_DAY1_ASSET_MAPPING.md) — 正式素材来源与校验值。
-8. [`docs/13_FORMAL_ASSET_GATE_REPORT.md`](./docs/13_FORMAL_ASSET_GATE_REPORT.md) — 正式资产浏览器 Gate。
-9. [`docs/06_LEVEL_PROGRESSION.md`](./docs/06_LEVEL_PROGRESSION.md) — 8 关正式难度曲线与数值。
-
-注意：`docs/06_LEVEL_PROGRESSION.md` 中旧的“只要完成结算即可解锁下一关”表述，已被 2026-09-05 批准并实现的首次推进规则覆盖。当前以 `docs/11_PROGRESSION_GATE_REPORT.md` 与实际实现为准。
-
-同时提供：
-
-- `CLAUDE.md`：Claude Code 入口。
-- `GEMINI.md`：Gemini CLI 入口。
+DAY 1 七种食材与 B03 四道正式菜品已接入，不要根据旧素材计划重新制作。仓库还存在后续关卡视觉扩展，实际覆盖和验收状态见当前状态文档；不能把 DAY 1 历史报告推广为全关卡正式美术验收。
 
 ## 核心玩法
 
 食材是有限资源，菜谱是不同的资源组合方案。
 
-DAY 1 中四道菜都需要鸡蛋，但只有 3 个鸡蛋。玩家必须决定把鸡蛋分配给哪里。游戏真正要产生的思考不是“这个能做什么菜”，而是：
+DAY 1 中四道菜都需要鸡蛋，但只有三个鸡蛋。玩家必须决定把鸡蛋分配给哪里。核心问题不是“这个能做什么菜”，而是：
 
 > **用了这个以后，我还能做什么？**
 
-详细设计与后续开发约束以 `AGENTS.md` 与 `docs/` 为准。
+教程不直接告诉玩家最优路线。发布收敛不修改库存、配方、关卡、三星条件或首次推进规则，也不增加大型系统。
+
+## AI / 开发者从这里开始
+
+先阅读 [`AGENTS.md`](./AGENTS.md) 和 [`docs/08_IMPLEMENTATION_STATUS.md`](./docs/08_IMPLEMENTATION_STATUS.md)，再按 [`docs/README.md`](./docs/README.md) 阅读任务对应规范。
+
+运行文件与启动说明见 [`game/README.md`](./game/README.md)。当前入口的脚本加载順序以 `game/index.html` 为准，不要删除已存在的后续美术或部署兼容层。
+
+历史证据：
+
+- [`docs/10_BROWSER_GATE_REPORT.md`](./docs/10_BROWSER_GATE_REPORT.md)：主 QA。
+- [`docs/11_PROGRESSION_GATE_REPORT.md`](./docs/11_PROGRESSION_GATE_REPORT.md)：首次推进规则。
+- [`docs/12_DAY1_ASSET_MAPPING.md`](./docs/12_DAY1_ASSET_MAPPING.md)：正式素材来源与校验值。
+- [`docs/13_FORMAL_ASSET_GATE_REPORT.md`](./docs/13_FORMAL_ASSET_GATE_REPORT.md)：DAY 1 正式资产。
+
+`docs/06_LEVEL_PROGRESSION.md` 中旧的“只要完成结算即可解锁下一关”表述由已实现的“首次至少完成一道菜”规则覆盖。
+
+`CLAUDE.md` 与 `GEMINI.md` 为其他 AI 编码工具入口。
