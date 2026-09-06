@@ -1,0 +1,195 @@
+name: xhs-minitool-package
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'game/**'
+      - '.github/workflows/package-minitool.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download and verify minitool-zip-builder 1.6.0
+        shell: bash
+        run: |
+          set -euo pipefail
+          SKILL_URL='https://fe-static.xhscdn.com/mini-tool/20260831163932/minitool-zip-builder-1.6.0.skill'
+          SKILL_SHA256='29c04115fd89d7eab7b81775f4287ae20c569ad3794d25d8404dc0ec3ec3b65e'
+          curl -fsSL "$SKILL_URL" -o /tmp/minitool-zip-builder-1.6.0.skill
+          echo "$SKILL_SHA256  /tmp/minitool-zip-builder-1.6.0.skill" | sha256sum -c -
+          rm -rf .skill
+          mkdir -p .skill
+          python3 - <<'PY'
+          import zipfile
+          src='/tmp/minitool-zip-builder-1.6.0.skill'
+          with zipfile.ZipFile(src) as z:
+              z.extractall('.skill')
+          PY
+          SKILL_MD="$(find .skill -type f -name SKILL.md -print -quit)"
+          test -n "$SKILL_MD"
+          grep -q 'version: "1.6.0"' "$SKILL_MD"
+          echo "SKILL_DIR=$(dirname "$SKILL_MD")" >> "$GITHUB_ENV"
+          echo "SKILL_SHA256=$SKILL_SHA256" >> "$GITHUB_ENV"
+          printf 'Installed skill: %s\n' "$SKILL_MD"
+
+      - name: Stage uploadable offline artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf build/xhs-minitool build/xhs-output
+          mkdir -p build/xhs-minitool build/xhs-output
+          cp game/index.html build/xhs-minitool/index.html
+          cp game/styles.css game/enhancements.css build/xhs-minitool/
+          cp game/app.js game/enhancements.js game/day3-8-food-assets.js game/formal-assets.js game/dish-render-hotfix.js build/xhs-minitool/
+          cp -a game/assets build/xhs-minitool/assets
+          test -f build/xhs-minitool/index.html
+
+      - name: Static container and compatibility gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, sys
+
+          root=Path('build/xhs-minitool')
+          errors=[]
+          warnings=[]
+          allowed={'.html','.css','.js','.png','.jpg','.jpeg','.gif','.webp','.svg','.woff','.woff2','.json'}
+          files=[p for p in root.rglob('*') if p.is_file()]
+          for p in files:
+              if p.suffix.lower() not in allowed:
+                  errors.append(f'unsupported file type: {p.relative_to(root)}')
+
+          index=(root/'index.html').read_text('utf-8')
+          if not re.search(r'<!doctype\s+html', index, re.I): errors.append('index.html missing doctype')
+          if not re.search(r'<html[^>]+lang=["\']zh-CN["\']', index, re.I): errors.append('index.html missing lang=zh-CN')
+          if not re.search(r'<meta[^>]+charset=["\']?utf-8', index, re.I): errors.append('index.html missing UTF-8 charset')
+          viewport=re.search(r'<meta[^>]+name=["\']viewport["\'][^>]+content=["\']([^"\']+)', index, re.I)
+          vp=viewport.group(1) if viewport else ''
+          for required in ('width=device-width','initial-scale=1','viewport-fit=cover'):
+              if required not in vp: errors.append(f'viewport missing {required}')
+          if re.search(r'<script(?![^>]*\bsrc=)[^>]*>', index, re.I): errors.append('inline script present')
+          if re.search(r'\son[a-z]+\s*=', index, re.I): errors.append('inline event handler present')
+          if re.search(r'<script[^>]+type=["\']module["\']', index, re.I): errors.append('module script present')
+          if re.search(r'<(?:base|iframe|object)\b', index, re.I): errors.append('forbidden base/iframe/object present')
+
+          for attr,path in re.findall(r'(?:src|href)=["\']([^"\']+)["\']', index, re.I):
+              pass
+          refs=re.findall(r'(?:src|href)=["\']([^"\']+)["\']', index, re.I)
+          for ref in refs:
+              if re.match(r'https?://', ref, re.I): errors.append(f'external resource in index: {ref}')
+              elif ref.startswith('/') or ref.startswith('//'): errors.append(f'non-relative resource in index: {ref}')
+              elif not ref.startswith(('data:','blob:','#')):
+                  target=(root/ref.removeprefix('./')).resolve()
+                  try: target.relative_to(root.resolve())
+                  except ValueError: errors.append(f'resource escapes root: {ref}'); continue
+                  if not target.exists(): errors.append(f'missing referenced resource: {ref}')
+
+          text='\n'.join(p.read_text('utf-8',errors='ignore') for p in files if p.suffix.lower() in {'.html','.css','.js','.json'})
+          js='\n'.join(p.read_text('utf-8',errors='ignore') for p in files if p.suffix.lower()=='.js')
+          css='\n'.join(p.read_text('utf-8',errors='ignore') for p in files if p.suffix.lower()=='.css')
+
+          forbidden=[
+              (r'\bfetch\s*\(', 'fetch'), (r'\bXMLHttpRequest\b','XMLHttpRequest'),
+              (r'\bnew\s+WebSocket\s*\(','WebSocket'), (r'\bnew\s+EventSource\s*\(','EventSource'),
+              (r'\bnew\s+RTCPeerConnection\s*\(','RTCPeerConnection'), (r'navigator\.geolocation','geolocation'),
+              (r'navigator\.clipboard','clipboard'), (r'navigator\.serviceWorker','serviceWorker'),
+              (r'\bnew\s+(?:Shared)?Worker\s*\(','Worker'), (r'\beval\s*\(','eval'),
+              (r'\bnew\s+Function\s*\(','new Function'), (r'\bWebAssembly\b','WebAssembly'),
+              (r'\bwindow\.open\s*\(','window.open'), (r'\bwindow\.prompt\s*\(','window.prompt'),
+              (r'<iframe\b','iframe'), (r'<object\b','object')
+          ]
+          for pattern,label in forbidden:
+              if re.search(pattern,text,re.I): errors.append(f'forbidden capability found: {label}')
+
+          modern=[
+              (r'\?\.', 'optional chaining'), (r'\?\?', 'nullish coalescing'),
+              (r'\b(?:replaceAll|structuredClone)\s*\(', 'post-ES2017 runtime API'),
+              (r'\bObject\.hasOwn\s*\(', 'Object.hasOwn'), (r'\.at\s*\(', 'Array/String .at')
+          ]
+          for pattern,label in modern:
+              if re.search(pattern,js): errors.append(f'Chrome 61 compatibility risk: {label}')
+
+          if '100svh' in css and '100vh' not in css: errors.append('svh used without 100vh fallback')
+          if '.supports-flex-gap' in css and 'supportsFlexGap' not in js: errors.append('Flex gap enhancement lacks behavior detection')
+          if 'env(safe-area-inset-' in css and 'var(--safe-area-inset-' not in css: errors.append('safe area env lacks injected variable fallback')
+
+          base64_rx=re.compile(r'data:[^;\s"\']+;base64,([A-Za-z0-9+/=]+)')
+          for m in base64_rx.finditer(text):
+              approx=len(m.group(1))*3//4
+              if approx>1024*1024: errors.append(f'Base64 item exceeds 1 MiB: about {approx} bytes')
+              elif approx>100*1024: warnings.append(f'Base64 item exceeds 100 KiB: about {approx} bytes')
+
+          print(f'files={len(files)}')
+          for w in warnings: print('WARN:',w)
+          for e in errors: print('ERROR:',e)
+          if errors: sys.exit(1)
+          print('Static semantic gate: PASS')
+          PY
+          for f in build/xhs-minitool/*.js; do node --check "$f"; done
+
+      - name: Run official 1.6.0 directory audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 "$SKILL_DIR/scripts/audit_artifact.py" build/xhs-minitool | tee build/xhs-output/audit-directory.txt
+
+      - name: Package zip with index at archive root
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd build/xhs-minitool && zip -q -r ../xhs-output/fridge-clear-v0.4-xhs-minitool.zip .)
+          test "$(unzip -Z1 build/xhs-output/fridge-clear-v0.4-xhs-minitool.zip | head -1)" != "xhs-minitool/"
+          unzip -Z1 build/xhs-output/fridge-clear-v0.4-xhs-minitool.zip | grep -qx 'index.html'
+
+      - name: Run official 1.6.0 zip audit and summarize
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP='build/xhs-output/fridge-clear-v0.4-xhs-minitool.zip'
+          python3 "$SKILL_DIR/scripts/audit_artifact.py" "$ZIP" | tee build/xhs-output/audit-zip.txt
+          ZIP_BYTES=$(stat -c %s "$ZIP")
+          ZIP_SHA256=$(sha256sum "$ZIP" | awk '{print $1}')
+          UNPACKED_BYTES=$(du -sb build/xhs-minitool | awk '{print $1}')
+          FILE_COUNT=$(find build/xhs-minitool -type f | wc -l | tr -d ' ')
+          cat > build/xhs-output/VALIDATION_SUMMARY.md <<EOF
+          # 小红书小工具打包校验摘要
+
+          - 源提交：${GITHUB_SHA}
+          - 官方 skill：minitool-zip-builder 1.6.0
+          - 官方 skill 下载 SHA-256：${SKILL_SHA256}
+          - skill 安装目录：.skill/（CI checkout 内）
+          - 入口：zip 根目录 index.html
+          - 文件数：${FILE_COUNT}
+          - 解压体积：${UNPACKED_BYTES} bytes
+          - zip 体积：${ZIP_BYTES} bytes
+          - zip SHA-256：${ZIP_SHA256}
+          - 官方目录审计：PASS
+          - 官方 ZIP 审计：PASS
+          - 禁用能力 / 外链 / 模块脚本 / 内联脚本静态扫描：PASS
+          - Chrome 61 语法风险静态扫描：PASS
+          - Chrome 61 / Android 8.1 真机：未实测
+          - 小红书实际容器：未实测
+
+          本产物只打包运行所需文件；未包含 README、测试脚本、构建配置、source map、node_modules 或 .git。
+          EOF
+          sha256sum "$ZIP" > build/xhs-output/SHA256SUMS.txt
+          unzip -Z1 "$ZIP" > build/xhs-output/ZIP_CONTENTS.txt
+          cp "$SKILL_DIR/SKILL.md" build/xhs-output/SKILL-1.6.0.md
+
+      - name: Upload validated package
+        uses: actions/upload-artifact@v4
+        with:
+          name: xhs-minitool-${{ github.sha }}
+          path: build/xhs-output/
+          if-no-files-found: error
+          retention-days: 30
