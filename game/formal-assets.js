@@ -92,6 +92,13 @@ renderSlots=function(){
   slots.querySelectorAll('[data-remove]').forEach(x=>x.addEventListener('click',()=>{S.sel.splice(+x.dataset.remove,1);update()}));
 };
 
+renderUrgent=function(){
+  el('urgentChips').innerHTML=Object.entries(Q[4]).map(([i,n])=>{
+    const q=Math.min(S.inv[i]||0,n);
+    return q?`<span class="chip"><span class="chip-food-icon">${formalIngredientVisual(i,1)}</span><span>${name(i)}×${q}</span></span>`:'';
+  }).join('')||'<span class="chip">✓ 今天要救的东西都处理好了</span>';
+};
+
 renderMenu=function(){
   el('doneCount').textContent=S.done.length+' 道';
   el('doneList').innerHTML=S.done.map(id=>`<button type="button" class="done-dish" data-done-recipe="${id}"><span class="done-thumb">${formalDishThumb(id)}</span><span class="done-name">${R[id][0]}</span></button>`).join('');
@@ -127,6 +134,9 @@ style.textContent=`
 .slot .formal-ing-sprite{width:38px;height:38px;flex:none}
 .slot .formal-day2-ing-sprite{width:38px;height:38px;flex:none}
 .slot .formal-day38-ing-sprite{width:38px;height:38px;flex:none}
+.chip{display:inline-flex;align-items:center;gap:3px}
+.chip-food-icon{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.chip-food-icon .formal-ing-sprite,.chip-food-icon .formal-day2-ing-sprite,.chip-food-icon .formal-day38-ing-sprite,.chip-food-icon .formal-vector-ing{width:16px;height:16px;min-width:16px;min-height:16px;filter:none}
 .formal-vector-ing{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 3px 3px #31505b40)}
 .ingredient .formal-vector-ing{min-width:100%;min-height:100%}
 .drag-ghost .formal-vector-ing{width:58px;height:58px;flex:none}
