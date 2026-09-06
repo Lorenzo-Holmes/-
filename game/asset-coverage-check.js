@@ -32,6 +32,10 @@ vm.runInNewContext(day38, sandbox);
 function webpSize(dataUri) {
   if (!dataUri?.startsWith('data:image/webp;base64,')) return null;
   const buf = Buffer.from(dataUri.slice(dataUri.indexOf(',') + 1), 'base64');
+  return webpBufferSize(buf);
+}
+
+function webpBufferSize(buf) {
   if (buf.length < 30 || buf.toString('ascii', 0, 4) !== 'RIFF' || buf.toString('ascii', 8, 12) !== 'WEBP') return null;
   const vp8x = buf.indexOf(Buffer.from('VP8X'));
   if (vp8x >= 0 && vp8x + 18 <= buf.length) {
@@ -45,6 +49,8 @@ function webpSize(dataUri) {
 
 const day38IngredientAtlas = webpSize(sandbox.window.DAY38_ING_ATLAS);
 const day38DishAtlas = webpSize(sandbox.window.DAY38_DISH_ATLAS);
+const day2IngredientAtlas = webpBufferSize(fs.readFileSync(path.join(root, 'assets/ingredients/day2/day2_ingredients_atlas.webp')));
+const day2DishAtlas = webpBufferSize(fs.readFileSync(path.join(root, 'assets/dishes/day2/day2_dishes_atlas.webp')));
 
 const missingIngredients = [...new Set(ingredientIds)].filter(id => !knownIngredients.has(id));
 const missingDishes = [...new Set(recipeIds)].filter(id => !knownDishes.has(id));
@@ -52,14 +58,16 @@ const missingDishes = [...new Set(recipeIds)].filter(id => !knownDishes.has(id))
 const assertions = [
   ['DAY 3-8 atlas script loads before render overlays', index.indexOf('day3-8-food-assets.js') >= 0 && index.indexOf('day3-8-food-assets.js') < index.indexOf('formal-assets.js') && index.indexOf('day3-8-food-assets.js') < index.indexOf('dish-render-hotfix.js')],
   ['DAY 3-8 embedded atlases exist', day38.includes('window.DAY38_ING_ATLAS') && day38.includes('window.DAY38_DISH_ATLAS')],
+  ['DAY 2 ingredient atlas decodes to 256x128 WebP', day2IngredientAtlas?.width === 256 && day2IngredientAtlas?.height === 128 && day2IngredientAtlas.bytes > 8000],
+  ['DAY 2 dish atlas decodes to 320x64 WebP', day2DishAtlas?.width === 320 && day2DishAtlas?.height === 64 && day2DishAtlas.bytes > 7000],
   ['DAY 3-8 ingredient atlas decodes to 288x216 WebP', day38IngredientAtlas?.width === 288 && day38IngredientAtlas?.height === 216 && day38IngredientAtlas.bytes > 20000],
   ['DAY 3-8 dish atlas decodes to 320x240 WebP', day38DishAtlas?.width === 320 && day38DishAtlas?.height === 240 && day38DishAtlas.bytes > 20000],
   ['formalIngredientVisual bitmap-first fallback order', /ingredientSprite\(id,qty\)\|\|day2IngredientSprite\(id\)\|\|day38IngredientSprite\(id\)\|\|vectorIngredient\(id\)/.test(formal)],
   ['Urgent ingredient chips use formal art instead of food emoji', /renderUrgent=function\(\)[\s\S]*formalIngredientVisual\(i,1\)/.test(formal)],
-  ['DAY 2 ingredient atlas mapping', /DAY2_ING_SPRITES=\{toast:/.test(formal)],
+  ['DAY 2 ingredient atlas mapping', /DAY2_ING_SPRITES=\{toast:\[0,0\],banana:\[1,0\],apple:\[2,0\],yogurt:\[3,0\]/.test(formal) && formal.includes('DAY2_ING_ATLAS_FILE')],
   ['DAY 3-8 bitmap ingredient coverage', day38Ingredients.size === 11 && [...day38Ingredients].every(id => formal.includes(`${id}:`)) && formal.includes('window.DAY38_ING_ATLAS')],
   ['DAY 1 dish atlas mapping', /DAY1_DISH_CELLS=\{te:/.test(dish)],
-  ['DAY 2 dish atlas mapping', /DAY2_DISH_CELLS=\{bm:/.test(dish)],
+  ['DAY 2 dish atlas mapping', /DAY2_DISH_CELLS=\{bm:\[0,0\],ay:\[1,0\],cst:\[2,0\],ecs:\[3,0\],ce:\[4,0\]\}/.test(dish) && dish.includes('DAY2_DISH_ATLAS_FILE')],
   ['DAY 3-8 bitmap dish coverage', day38Dishes.size === 11 && [...day38Dishes].every(id => dish.includes(`${id}:`)) && dish.includes('window.DAY38_DISH_ATLAS')],
   ['No uncovered ingredient IDs', missingIngredients.length === 0],
   ['No uncovered recipe IDs', missingDishes.length === 0],
