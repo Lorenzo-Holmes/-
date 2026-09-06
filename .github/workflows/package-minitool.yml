@@ -82,8 +82,6 @@ jobs:
           if re.search(r'<script[^>]+type=["\']module["\']', index, re.I): errors.append('module script present')
           if re.search(r'<(?:base|iframe|object)\b', index, re.I): errors.append('forbidden base/iframe/object present')
 
-          for attr,path in re.findall(r'(?:src|href)=["\']([^"\']+)["\']', index, re.I):
-              pass
           refs=re.findall(r'(?:src|href)=["\']([^"\']+)["\']', index, re.I)
           for ref in refs:
               if re.match(r'https?://', ref, re.I): errors.append(f'external resource in index: {ref}')
