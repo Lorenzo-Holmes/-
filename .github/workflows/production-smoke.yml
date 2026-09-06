@@ -24,11 +24,39 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Validate smoke script syntax
         run: node --check scripts/production-smoke.cjs
       - name: Verify production HTTP MIME and candidate content
         run: node scripts/production-smoke.cjs --http-only
+      - name: Diagnose alternate deployment paths without approving release
+        if: failure()
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto');
+          const dir=process.env.SMOKE_OUTPUT;
+          fs.mkdirSync(dir,{recursive:true});
+          const digest=b=>crypto.createHash('sha256').update(b).digest('hex');
+          (async()=>{
+            const report=JSON.parse(fs.readFileSync(dir+'/report.json','utf8'));
+            const results=[];
+            for(const item of report.http.filter(x=>x.path.startsWith('/game/')&&x.status!=='pass')){
+              const alternate=item.path.replace(/^\/game\//,'/');
+              try {
+                const r=await fetch(new URL(alternate,process.env.SMOKE_BASE_URL),{signal:AbortSignal.timeout(10000)});
+                const b=Buffer.from(await r.arrayBuffer());
+                const same=r.status===200&&digest(b)===digest(fs.readFileSync(item.path.slice(1)));
+                results.push({path:alternate,httpStatus:r.status,matchesCandidate:same});
+              }catch(e){results.push({path:alternate,error:String(e.cause?.code||e.message)});}
+            }
+            const r=await fetch(process.env.SMOKE_BASE_URL,{signal:AbortSignal.timeout(10000)});
+            const html=await r.text();
+            const root={httpStatus:r.status,title:html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]||null,scriptSources:[...html.matchAll(/<script[^>]*src=["']([^"']+)/gi)].map(m=>m[1]),matchesCandidateIndex:digest(Buffer.from(html))===digest(fs.readFileSync('game/index.html'))};
+            const diagnostic={commit:process.env.GITHUB_SHA,root,alternatePaths:results,releaseApproved:false};
+            fs.writeFileSync(dir+'/path-diagnostic.json',JSON.stringify(diagnostic,null,2)+'\n');
+            console.log(JSON.stringify(diagnostic,null,2));
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
       - name: Install isolated browser test dependency
         run: |
           npm install --prefix "$RUNNER_TEMP/fridge-smoke" --no-save --package-lock=false playwright@1.55.1
