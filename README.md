@@ -10,15 +10,15 @@
 
 当前为 **v0.4 比赛版候选的发布收敛阶段**，不是已经完成冻结的正式 Release。
 
-当前实现完成度、代码基线、历史验收和未验证项目统一维护在 [`docs/08_IMPLEMENTATION_STATUS.md`](./docs/08_IMPLEMENTATION_STATUS.md)。其他入口文档不再复制一份易过期的状态表。
+当前完成度、代码基线、验收结果和未验证项目统一维护在 [`docs/08_IMPLEMENTATION_STATUS.md`](./docs/08_IMPLEMENTATION_STATUS.md)。其他入口文档不重复维护动态状态表。
 
 正式 Worker：`https://worker.1106314996.workers.dev/`
 
-试玩路径：`/`、`/game/index.html`、`/game/play.html`。
+**线上路径是 `/`、`/index.html`、`/play.html`，不是 `/game/index.html` 或 `/game/play.html`。** 仓库的 `game/` 目录被部署到站点根目录。2026-09-06 的生产路径诊断确认，根目录下的 13 个运行文件与候选内容一致；旧 `/game/` 路径返回 404。不要混淆仓库目录与公网路径，不把内容一致称为已读取 Cloudflare 后台构建元数据。
 
-仓库兼容入口：[`game/play.html`](./game/play.html)。本地须从仓库根目录启动静态 HTTP 服务，而不是用文件协议打开。
+仓库兼容入口：[`game/play.html`](./game/play.html)。本地从仓库根目录启动静态 HTTP 服务时，仍使用 `/game/play.html`；不要用文件协议打开。
 
-PR #1 已合并；Issue #2 只跟踪 Production Smoke，不再承担 PR 转 Ready / 合并步骤。部署验收通过以前，不关闭 Issue #2，不创建正式 v0.4 Tag / Release。
+PR #1 已合并；Issue #2 只跟踪 Production Smoke，不再承担 PR 转 Ready / 合并步骤。发布验收通过以前，不关闭 Issue #2，不创建正式 v0.4 Tag / Release。
 
 ## 比赛版范围
 
@@ -48,7 +48,12 @@ DAY 1 中四道菜都需要鸡蛋，但只有三个鸡蛋。玩家必须决定�
 
 先阅读 [`AGENTS.md`](./AGENTS.md) 和 [`docs/08_IMPLEMENTATION_STATUS.md`](./docs/08_IMPLEMENTATION_STATUS.md)，再按 [`docs/README.md`](./docs/README.md) 阅读任务对应规范。
 
-运行文件与启动说明见 [`game/README.md`](./game/README.md)。当前入口的脚本加载順序以 `game/index.html` 为准，不要删除已存在的后续美术或部署兼容层。
+运行文件与启动说明见 [`game/README.md`](./game/README.md)。脚本加载顺序以 `game/index.html` 为准，不删除已存在的后续美术或部署兼容层。
+
+发布执行：
+
+- [`docs/14_PRODUCTION_SMOKE_GATE.md`](./docs/14_PRODUCTION_SMOKE_GATE.md)：线上验收、证据和冻结规程。
+- [`docs/15_SUBMISSION_PACKAGE.md`](./docs/15_SUBMISSION_PACKAGE.md)：投稿文案、录屏分镜和 Release Notes 草稿。
 
 历史证据：
 
