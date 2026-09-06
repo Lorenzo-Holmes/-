@@ -25,6 +25,7 @@
 | `13_FORMAL_ASSET_GATE_REPORT.md` | 历史 DAY 1 正式资产 Chromium Gate |
 | `14_PRODUCTION_SMOKE_GATE.md` | 公网路径映射、可执行验收与冻结规程 |
 | `15_SUBMISSION_PACKAGE.md` | 投稿文案、封面文字、录屏分镜与 Release Notes 草稿 |
+| `16_DEVICE_GATE_HANDOFF.md` | 正式 v0.4 前的真实手机 / 小红书容器人工 Gate 与回填模板 |
 
 ## 优先关系与历史状态
 
@@ -50,4 +51,4 @@ DAY 1 保持四道菜争抢三个鸡蛋；最优方案放弃洋葱煎蛋；教�
 
 用户批准的设计变化必须同步规范和实现。当前阶段更新只维护 `08_IMPLEMENTATION_STATUS.md`；其他入口保持指向它。发布证据关联确切提交、部署入口、测试环境与产物。没有证据不能关闭发布 Issue、宣布正式冻结或把待录分镜称为已完成视频。
 
-公网部署将 `game/` 挂载于站点根目录，不将仓库路径直接当成公网路径。具体映射及旧 `/game/` 链接的 404 记录见 `14_PRODUCTION_SMOKE_GATE.md`。
+公网部署将 `game/` 挂载于站点根目录，不将仓库路径直接当成公网路径。具体映射及旧 `/game/` 链接的 404 记录见 `14_PRODUCTION_SMOKE_GATE.md`。真实手机和小红书容器的最后现场步骤见 `16_DEVICE_GATE_HANDOFF.md`。
