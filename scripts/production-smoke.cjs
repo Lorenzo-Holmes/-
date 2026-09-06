@@ -88,6 +88,21 @@ async function browserChecks() {
           frame=page.mainFrame();
           if(route.endsWith('play.html'))frame=await (await page.locator('iframe').elementHandle()).contentFrame();
           assert(frame,'Missing embedded game frame');
+          // The tutorial pulses continuously. Use real touch input rather than
+          // waiting for zero CSS motion; retain visibility, enabled and hit tests.
+          const tapFire=async()=>{
+            const button=frame.locator('#fire');
+            await button.waitFor({state:'visible'});
+            assert(await button.isEnabled(),'Fire button is disabled');
+            assert(await button.evaluate(el=>{
+              const r=el.getBoundingClientRect();
+              const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+              return r.width>0&&r.height>0&&(hit===el||el.contains(hit));
+            }),'Fire button center is obstructed');
+            const box=await button.boundingBox();
+            assert(box,'Fire button has no viewport bounds');
+            await page.touchscreen.tap(box.x+box.width/2,box.y+box.height/2);
+          };
           await frame.locator('#go').click();
           await frame.locator('#fridge [data-ing]').first().waitFor();
           assert.equal(await frame.locator('#fridge [data-ing]').count(),7);
@@ -121,13 +136,13 @@ async function browserChecks() {
           await frame.locator('#clear').click();
           assert.equal(await frame.evaluate(()=>S.sel.length),0);
           await frame.locator('[data-ing="milk"]').click();await frame.locator('[data-ing="carrot"]').click();
-          await frame.locator('#fire').click();
+          await tapFire();
           assert.equal(await frame.evaluate(()=>JSON.stringify(S.inv)),initial);
           assert.equal(await frame.evaluate(()=>S.done.length),0);
           await frame.locator('#clear').click();checks.push('reserve-withdraw-invalid');
           const cook=async(id,items)=>{
             for(const ing of items)await frame.locator(`[data-ing="${ing}"]`).click();
-            await frame.locator('#fire').click();
+            await tapFire();
             await frame.waitForFunction(id=>S.done.includes(id)&&!S.cooking,id);
             assert(await frame.evaluate(()=>Object.values(S.inv).every(n=>n>=0)));
           };
