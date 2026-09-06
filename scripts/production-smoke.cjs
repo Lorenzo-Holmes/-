@@ -6,13 +6,15 @@ const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 const assert = require('node:assert/strict');
 const base = new URL(process.env.SMOKE_BASE_URL || 'https://worker.1106314996.workers.dev/');
+const prefix = '/' + (process.env.SMOKE_PUBLIC_PREFIX || '/game/').replace(/^\/+|\/+$/g,'') + '/';
+const publicPath = file => file ? (prefix.replace(/\/+/g,'/') + file.replace(/^game\//,'')) : '/';
 const out = path.resolve(process.env.SMOKE_OUTPUT || 'artifacts/production-smoke');
 const sha = process.env.GITHUB_SHA || execFileSync('git', ['rev-parse', 'HEAD'], {encoding:'utf8'}).trim();
 const mode = process.argv[2] || '--all';
 assert(['--all','--http-only','--browser-only'].includes(mode), 'Unknown mode');
 fs.mkdirSync(out, {recursive:true});
 const reportFile = path.join(out, 'report.json');
-let report = {commit:sha, baseURL:base.href, startedAt:new Date().toISOString(), http:[], browser:[], browserStatus:'not-run', manualVisualReview:'pending', releaseApproved:false};
+let report = {commit:sha, baseURL:base.href, publicPrefix:prefix.replace(/\/+/g,'/'), startedAt:new Date().toISOString(), http:[], browser:[], browserStatus:'not-run', manualVisualReview:'pending', releaseApproved:false};
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 function save() {
   report.updatedAt = new Date().toISOString();
@@ -31,9 +33,9 @@ function runtimeFiles() {
   return [...new Set(['game/index.html','game/play.html',...refs,...images])];
 }
 async function probe(file) {
-  const entry={path:'/'+file,status:'fail'};
+  const entry={path:publicPath(file),repositoryPath:file,status:'fail'};
   try {
-    const response=await fetch(new URL(file,base),{headers:{'Cache-Control':'no-cache'},signal:AbortSignal.timeout(20000)});
+    const response=await fetch(new URL(publicPath(file),base),{headers:{'Cache-Control':'no-cache'},signal:AbortSignal.timeout(20000)});
     entry.httpStatus=response.status; entry.finalURL=response.url;
     assert.equal(new URL(response.url).origin,base.origin,'Unexpected cross-origin redirect');
     assert.equal(response.status,200,`HTTP ${response.status}`);
@@ -82,7 +84,7 @@ async function browserChecks() {
         page.on('framenavigated',()=>navigations++);
         try {
           page.setDefaultTimeout(10000);
-          await page.goto(new URL(route,base).href,{waitUntil:'networkidle'});
+          await page.goto(new URL(publicPath(route),base).href,{waitUntil:'networkidle'});
           frame=page.mainFrame();
           if(route.endsWith('play.html'))frame=await (await page.locator('iframe').elementHandle()).contentFrame();
           assert(frame,'Missing embedded game frame');
@@ -164,6 +166,7 @@ async function browserChecks() {
     report=JSON.parse(fs.readFileSync(reportFile,'utf8'));
     assert.equal(report.commit,sha,'HTTP report belongs to a different commit');
     assert.equal(report.baseURL,base.href,'HTTP report belongs to a different origin');
+    assert.equal(report.publicPrefix,prefix.replace(/\/+/g,'/'),'HTTP report uses another mount point');
   } else await httpChecks();
   if(mode!=='--http-only' && report.httpStatus==='pass')await browserChecks();
   save(); console.log(fs.readFileSync(path.join(out,'summary.md'),'utf8'));
