@@ -13,18 +13,15 @@
   cursor: default;
 }
 
-.pot.cooking::before { animation: potShake .16s ease-in-out infinite alternate; }
-.pot.cooking::after { animation: handleShake .16s ease-in-out infinite alternate; }
-.pot.cooking { animation: potGlow .8s ease-in-out; }
-
-@keyframes potShake {
-  from { transform: translateX(-50%) rotate(-1.5deg); }
-  to { transform: translateX(-50%) rotate(1.5deg); }
+.pot.cooking {
+  animation:
+    potCookShake .16s ease-in-out infinite alternate,
+    potGlow .8s ease-in-out;
 }
 
-@keyframes handleShake {
-  from { transform: rotate(14deg); }
-  to { transform: rotate(18deg); }
+@keyframes potCookShake {
+  from { transform: translate3d(-1px, 0, 0) rotate(-1.35deg); }
+  to { transform: translate3d(1px, 0, 0) rotate(1.35deg); }
 }
 
 @keyframes potGlow {
@@ -237,8 +234,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pot.cooking::before,
-  .pot.cooking::after,
   .pot.cooking,
   .dish-reward {
     animation-duration: .01ms !important;
