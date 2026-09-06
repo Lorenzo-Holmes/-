@@ -50,6 +50,7 @@ jobs:
           cp game/styles.css game/enhancements.css build/xhs-minitool/
           cp game/app.js game/enhancements.js game/day3-8-food-assets.js game/formal-assets.js game/dish-render-hotfix.js build/xhs-minitool/
           cp -a game/assets build/xhs-minitool/assets
+          find build/xhs-minitool/assets -type f -name 'README.md' -delete
           test -f build/xhs-minitool/index.html
 
       - name: Static container and compatibility gate
