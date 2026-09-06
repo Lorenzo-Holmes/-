@@ -1,0 +1,55 @@
+name: production-smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/production-smoke.yml'
+      - 'scripts/production-smoke.cjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SMOKE_BASE_URL: https://worker.1106314996.workers.dev/
+      SMOKE_OUTPUT: artifacts/production-smoke
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate smoke script syntax
+        run: node --check scripts/production-smoke.cjs
+      - name: Verify production HTTP MIME and candidate content
+        run: node scripts/production-smoke.cjs --http-only
+      - name: Install isolated browser test dependency
+        run: |
+          npm install --prefix "$RUNNER_TEMP/fridge-smoke" --no-save --package-lock=false playwright@1.55.1
+          "$RUNNER_TEMP/fridge-smoke/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise both deployed entries on mobile viewports
+        run: |
+          export PLAYWRIGHT_MODULE="$RUNNER_TEMP/fridge-smoke/node_modules/playwright"
+          node scripts/production-smoke.cjs --browser-only
+      - name: Publish evidence summary
+        if: always()
+        run: |
+          if test -f artifacts/production-smoke/summary.md; then
+            cat artifacts/production-smoke/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'No smoke evidence was produced. Release gate remains unverified.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Preserve smoke report screenshots and test recordings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-smoke-${{ github.sha }}
+          path: artifacts/production-smoke/
+          retention-days: 30
+          if-no-files-found: warn
