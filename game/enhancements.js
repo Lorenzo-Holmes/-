@@ -29,34 +29,34 @@ function showCompletedDish(id){
 function setCookingUI(on){
   S.cooking=on;
   const game=app.querySelector('.game'),fireBtn=el('fire'),pot=app.querySelector('.pot');
-  game?.classList.toggle('cooking',on);pot?.classList.toggle('cooking',on);
+  if(game)game.classList.toggle('cooking',on);if(pot)pot.classList.toggle('cooking',on);
   if(fireBtn){fireBtn.disabled=on;if(on)fireBtn.textContent='烹饪中…'}
 }
 function showDishReward(id){
   clearTimeout(rewardTimer);
   let reward=app.querySelector('.dish-reward');
-  if(!reward){reward=document.createElement('div');reward.className='dish-reward';app.querySelector('.game')?.appendChild(reward)}
+  if(!reward){reward=document.createElement('div');reward.className='dish-reward';const game=app.querySelector('.game');if(game)game.appendChild(reward)}
   reward.innerHTML=`<div class="reward-thumb">${recipeThumb(id)}</div><b>${R[id][0]}</b><small>完成一道菜</small>`;
   requestAnimationFrame(()=>reward.classList.add('show'));
   rewardTimer=setTimeout(()=>reward.classList.remove('show'),700);
 }
 function commitCookEnhanced(id){
-  if(!S?.cooking)return;
+  if(!S||!S.cooking)return;
   const r=R[id];
   if(!r||matchedId()!==id||!canMake(r)){setCookingUI(false);update();return}
-  const beforeInv={...S.inv},before=possibleIds(beforeInv),nextInv={...S.inv};
+  const beforeInv=Object.assign({},S.inv),before=possibleIds(beforeInv),nextInv=Object.assign({},S.inv);
   for(const[i,n]of Object.entries(r[1])){if((nextInv[i]||0)<n){setCookingUI(false);update();return}nextInv[i]-=n}
   S.inv=nextInv;S.done.push(id);S.sel=[];S.m.t+=r[3];S.m.s+=r[2];S.m.k+=r[5];
   const after=possibleIds(nextInv),closed=before.filter(x=>x!==id&&!after.includes(x));
   const depleted=Object.keys(r[1]).filter(i=>(beforeInv[i]||0)>0&&(nextInv[i]||0)===0);
   const causalClosed=closed.filter(recipeId=>missingForRecipe(recipeId,nextInv).some(i=>depleted.includes(i)));
   const causalDepleted=depleted.filter(i=>causalClosed.some(recipeId=>missingForRecipe(recipeId,nextInv).includes(i)));
-  if(S.tutorial?.phase==='fire'){P.tutorial.basicDone=true;save();S.tutorial=null}
+  if(S.tutorial&&S.tutorial.phase==='fire'){P.tutorial.basicDone=true;save();S.tutorial=null}
   setCookingUI(false);update();showDishReward(id);
   if(causalClosed.length&&causalDepleted.length)showToast(`${causalDepleted.map(name).join('、')}用完了`,`${causalClosed.length} 道菜暂时做不了了`);else showToast(`${r[0]}完成`);
 }
 cook=function(){
-  if(S?.cooking)return;
+  if(S&&S.cooking)return;
   const id=matchedId();if(!id)return;
   const r=R[id];if(!canMake(r))return;
   setCookingUI(true);

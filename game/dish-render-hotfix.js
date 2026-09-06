@@ -56,7 +56,7 @@ showCompletedDish=function(id){
 showDishReward=function(id){
   clearTimeout(rewardTimer);
   let reward=app.querySelector('.dish-reward');
-  if(!reward){reward=document.createElement('div');reward.className='dish-reward';app.querySelector('.game')?.appendChild(reward)}
+  if(!reward){reward=document.createElement('div');reward.className='dish-reward';const game=app.querySelector('.game');if(game)game.appendChild(reward)}
   reward.innerHTML=`<div class="reward-thumb">${dishVisual(id)}</div><b>${R[id][0]}</b><small>完成一道菜</small>`;
   requestAnimationFrame(()=>reward.classList.add('show'));
   rewardTimer=setTimeout(()=>reward.classList.remove('show'),700);
