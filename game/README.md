@@ -1,20 +1,20 @@
 # 冰箱清空计划 — 比赛版候选试玩
 
-## 入口与本地运行
+## 线上与本地入口
 
-兼容入口为 `play.html`，它通过 iframe 加载 `index.html`。不依赖 iframe 点击补丁。
+兼容入口 `play.html` 通过 iframe 加载 `index.html`，不依赖 iframe 点击补丁。
 
 正式 Worker：`https://worker.1106314996.workers.dev/`。
 
-历史上用户确认 `/`、`/game/index.html`、`/game/play.html` 可打开；当前候选版本是否完成生产验收，以 `../docs/08_IMPLEMENTATION_STATUS.md` 和 Issue #2 为准，不以这条历史记录替代测试。
+**线上：`/`、`/index.html`、`/play.html`。** 仓库 `game/` 目录已被部署到公网根目录。2026-09-06 实测，旧 `/game/index.html` 和 `/game/play.html` 返回 404；根目录对应运行文件与候选内容一致。文档修正不代表已为旧链接部署兼容跳转。
 
-从仓库根目录运行：
+从仓库根目录本地运行：
 
 ```bash
 python3 -m http.server 8080
 ```
 
-打开 `http://localhost:8080/game/play.html` 或 `http://localhost:8080/game/index.html`。本地运行不是正式部署验收。
+**本地：** `http://localhost:8080/game/play.html` 或 `http://localhost:8080/game/index.html`。本地仓库路径与公网路径不同，本地运行不是正式部署验收。
 
 ## 运行组成
 
@@ -41,4 +41,4 @@ Production Smoke 规程：`../docs/14_PRODUCTION_SMOKE_GATE.md`。
 
 投稿文案与待录分镜：`../docs/15_SUBMISSION_PACKAGE.md`。
 
-自动检查：`.github/workflows/static-qa.yml`；线上只读验收：`.github/workflows/production-smoke.yml`。历史报告不冒充本次运行结果，测试录像不冒充正式宣传片。
+自动检查：`.github/workflows/static-qa.yml`；线上只读验收：`.github/workflows/production-smoke.yml`，显式使用 `SMOKE_PUBLIC_PREFIX: /`。历史报告不冒充本次运行结果，测试录像不冒充正式宣传片。
