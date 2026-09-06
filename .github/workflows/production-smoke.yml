@@ -17,6 +17,8 @@ jobs:
     timeout-minutes: 10
     env:
       SMOKE_BASE_URL: https://worker.1106314996.workers.dev/
+      # Confirmed by run 34041936788: repository game/ is mounted at public /.
+      SMOKE_PUBLIC_PREFIX: /
       SMOKE_OUTPUT: artifacts/production-smoke
     steps:
       - name: Checkout exact candidate
@@ -45,7 +47,7 @@ jobs:
               try {
                 const r=await fetch(new URL(alternate,process.env.SMOKE_BASE_URL),{signal:AbortSignal.timeout(10000)});
                 const b=Buffer.from(await r.arrayBuffer());
-                const same=r.status===200&&digest(b)===digest(fs.readFileSync(item.path.slice(1)));
+                const same=r.status===200&&digest(b)===digest(fs.readFileSync(item.repositoryPath||item.path.slice(1)));
                 results.push({path:alternate,httpStatus:r.status,matchesCandidate:same});
               }catch(e){results.push({path:alternate,error:String(e.cause?.code||e.message)});}
             }
